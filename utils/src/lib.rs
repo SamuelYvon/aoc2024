@@ -1,9 +1,9 @@
 use std::path::Path;
-use std::fs::read;
+use std::fs::{read, write};
 
 /// Read a file in one go
 pub fn read_file<P: AsRef<str>>(file: P) -> String {
-   let p = Path::new(file.as_ref());
+    let p = Path::new(file.as_ref());
     if !p.is_file() {
         panic!("Not a file: {0}", file.as_ref());
     }
@@ -12,6 +12,22 @@ pub fn read_file<P: AsRef<str>>(file: P) -> String {
 }
 
 /// Read a file line by line
-pub fn read_lines<P: AsRef<str>>(file : P) -> Vec<String> {
+pub fn read_lines<P: AsRef<str>>(file: P) -> Vec<String> {
     read_file(file).split("\n").map(ToString::to_string).collect()
+}
+
+pub fn vec2str<T: ToString>(v: &Vec<T>, sep : &str) -> String {
+    let mut s = String::new();
+    for i in 0..v.len() {
+        s.push_str(v[i].to_string().as_str());
+        if i + 1 < v.len() {
+            s += sep;
+        }
+    }
+    s
+}
+
+pub fn to_file<P: AsRef<str>>(p: P, content: String) {
+    let path = Path::new(p.as_ref());
+    write(path, content).unwrap()
 }
