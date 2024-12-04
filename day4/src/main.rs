@@ -112,9 +112,39 @@ fn part1<P: AsRef<str>>(p: P) -> usize {
     xmas
 }
 
+fn part2<P: AsRef<str>>(p: P) -> usize {
+    let char_matrix = matrix(p);
+
+    let rows = char_matrix.len();
+    let cols = char_matrix[0].len();
+
+    let mut x_mas = 0;
+
+    for row in 1..rows - 1 {
+        for col in 1..cols - 1 {
+            if char_matrix[row][col] != 'A' {
+                continue;
+            }
+
+            let up_right = (char_matrix[row + 1][col - 1], char_matrix[row - 1][col + 1]);
+            let down_left = (char_matrix[row - 1][col - 1], char_matrix[row + 1][col + 1]);
+
+            let up_right_ok = up_right == ('M', 'S') || up_right == ('S', 'M');
+            let down_left_ok = down_left == ('M', 'S') || down_left == ('S', 'M');
+
+            if up_right_ok && down_left_ok {
+                x_mas += 1
+            }
+        }
+    }
+
+    x_mas
+}
+
 
 fn main() {
-    println!("Part 1: {0}", part1("../inputs/day4.txt"))
+    println!("Part 1: {0}", part1("../inputs/day4.txt"));
+    println!("Part 2: {0}", part2("../inputs/day4.txt"))
 }
 
 
