@@ -37,6 +37,7 @@ fn part1<P: AsRef<str>>(p: P) -> usize {
     safe
 }
 
+/// Naive impl, O(n^2)
 fn part2<P: AsRef<str>>(p: P) -> Vec<Vec<usize>> {
     let report = get_input(p);
 
@@ -64,10 +65,66 @@ fn part2<P: AsRef<str>>(p: P) -> Vec<Vec<usize>> {
     safe_vecs
 }
 
+fn part2_efficient<P: AsRef<str>>(p: P) -> Vec<Vec<usize>> {
+    let report = get_input(p);
+
+    let mut safe_vecs = vec![];
+
+    for measure in report {
+        let valid = valid_measure(&measure);
+        if valid {
+            safe_vecs.push(measure);
+            continue;
+        }
+
+        fn consider(deletion_index: usize, measure: &Vec<usize>) -> bool {
+            let mut measure = measure.clone();
+            measure.remove(deletion_index);
+            valid_measure(&measure)
+        }
+
+        let mut valid_change = false;
+
+        // Consider the alternatives if the list was deleted. Since we can only do a single
+        // deletion, we can only consider a single alternative.
+        // We check anywhere in the array
+        valid_change = consider(0, &measure);
+        for index in 0..measure.len() {
+            if index + 1 < measure.len() {
+                let diff = measure[index].abs_diff(measure[index + 1]);
+                if diff < 1 || diff > 3 {
+                    valid_change |= consider(index, &measure);
+                    valid_change |= consider(index + 1, &measure);
+                    break;
+                }
+            }
+            if index + 2 < measure.len() {
+                // check for non-monotonic
+                let asc_brk = (measure[index] < measure[index + 1]) != (measure[index + 1] < measure[index + 2]);
+                let desc_brk = (measure[index] > measure[index + 1]) != (measure[index + 1] > measure[index + 2]);
+                if asc_brk || desc_brk {
+                    valid_change |= consider(index, &measure);
+                    valid_change |= consider(index + 1, &measure);
+                    valid_change |= consider(index + 2, &measure);
+                    break;
+                }
+            }
+        }
+
+        if valid_change {
+            safe_vecs.push(measure)
+        }
+    }
+
+    safe_vecs
+}
+
 fn main() {
     println!("Number of safe reports: {0}", part1("../inputs/day2.txt"));
 
-    let safe = part2("../inputs/day2.txt");
+    let safe = part2_efficient("../inputs/day2.txt");
+    let safe2 = part2("../inputs/day2.txt");
+    assert_eq!(safe, safe2, "Solution should be OK");
     println!(
         "Number of safe reports with dampening: {0}",
         safe.len(),
