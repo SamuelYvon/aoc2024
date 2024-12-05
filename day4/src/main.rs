@@ -108,7 +108,6 @@ fn part1<P: AsRef<str>>(p: P) -> usize {
         }
     }
 
-
     xmas
 }
 
